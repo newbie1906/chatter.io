@@ -65,9 +65,9 @@ async def get_all_user():
 async def login(data: OAuth2PasswordRequestForm = Depends()):
     user = conn.execute(users.select().where(users.c.username == data.username)).fetchone()
     if user:
-        if verifyPassword(user.password, data.password):
+        if verifyPassword(data.password, user.password):
             data = {
-                "username": user.name,
+                "username": user.username,
                 "user_id": user.user_id
             }
             access_token = createAccessToken(data, timedelta(minutes=TOKEN_EXPIRE_TIME))
