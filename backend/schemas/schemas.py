@@ -29,3 +29,14 @@ class GetUser(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class Message(BaseModel):
+    message_text: str = Field(..., max_length=255)
+    user_id: int = ...
+    chatroom_id: int = ...
+
+class GetMessage(BaseModel):
+    message_id: int 
+    message_text: str 
+    user_id: int
+    chatroom_id: int

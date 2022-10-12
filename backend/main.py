@@ -2,8 +2,8 @@ from datetime import timedelta
 from fastapi import FastAPI, HTTPException, status, Depends, WebSocket
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from config.database import conn
-from models.models import chatrooms, users
-from schemas.schemas import Chatroom, GetChatroom, User, GetUser, Token
+from models.models import chatrooms, users, messages
+from schemas.schemas import Chatroom, GetChatroom, User, GetUser, Message, GetMessage, Token
 from utils.utils import hashPassword, createAccessToken, verifyPassword, TOKEN_EXPIRE_TIME
 from sqlalchemy import or_
 
@@ -77,6 +77,24 @@ async def login(data: OAuth2PasswordRequestForm = Depends()):
         detail="Invalid username or password",
         headers={"WWW-authenticate": "Bearer"}
         )
+
+@app.get("/api/chatroom/messages/{chatroom_id}", response_model=list[GetMessage])
+async def get_all_messages_for_chatroom_id(chatroom_id: int):
+    return conn.execute(messages.select().where(messages.c.chatroom_id == chatroom_id)).fetchall()
+
+@app.post("/api/messages", response_model=GetMessage)
+async def create_new_message(message: Message):
+    insertedMessage = conn.execute(messages.insert().values(
+        message_text=message.message_text,
+        user_id=message.user_id,
+        chatroom_id=message.chatroom_id
+    ))
+    message = dict(message)
+    message['message_id'] = insertedMessage.inserted_primary_key[0]
+    return message
+
+
+
 
 # @app.websocket("/ws")
 # async def websocket_endpoint(websocket: WebSocket):

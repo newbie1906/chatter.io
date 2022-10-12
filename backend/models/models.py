@@ -1,7 +1,7 @@
 import string
 from tokenize import String
 from xmlrpc.client import Boolean
-from sqlalchemy import Table, Column
+from sqlalchemy import Table, Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, Boolean, String
 from sqlalchemy.orm import declarative_base
 from config.database import meta
@@ -16,13 +16,14 @@ chatrooms = Table(
     Column('passcode', String(255))
 )
 
-# CREATE TABLE users (
-#     user_id int NOT NULL AUTO_INCREMENT,
-#     username varchar(255) NOT NULL,
-#     password varchar(255) NOT NULL,
-#     email varchar(255) NOT NULL,
-#     PRIMARY KEY (user_id)
-# );
+messages = Table(
+    'messages', meta,
+    Column('message_id', Integer, primary_key=True, nullable=False),
+    Column('message_text', String(255), nullable=False),
+    Column('user_id', ForeignKey('users.user_id')),
+    Column('chatroom_id', ForeignKey('chatrooms.chatroom_id')),
+)
+
 
 users = Table(
     'users', meta,
