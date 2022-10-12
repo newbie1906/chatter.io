@@ -12,11 +12,10 @@ services:
     environment: 
       MYSQL_ROOT_PASSWORD: password
     volumes:
-      - ./schema/:/docker-entrypoint-initdb.d/
+      - ./docker/schema/:/docker-entrypoint-initdb.d/
+  
   backend:
     build: .
     ports:
       - "8000:8000"
     restart: unless-stopped
-    depends_on:
-      - db
