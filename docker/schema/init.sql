@@ -16,3 +16,9 @@ CREATE TABLE messages (
     message_text TEXT NOT NULL,
     PRIMARY KEY (message_id)
 );
+
+CREATE TABLE chatrooms (
+    chatroom_id int NOT NULL AUTO_INCREMENT,
+    private tinyint NOT NULL,
+    PRIMARY KEY (chatroom_id)
+);
