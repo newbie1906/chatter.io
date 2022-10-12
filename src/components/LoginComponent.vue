@@ -5,6 +5,7 @@ export default {};
   <main>
     <div class="login-wrapper">
       <div class="left">
+        <h1 class='title'>CHATTER.IO</h1>
         <span>Username:</span>
         <input id="login" class="validInput" />
         <span>Password:</span>
@@ -27,6 +28,10 @@ main{
   justify-content: center;
   align-items:center;
   background:#55AAFF;
+}
+.title{
+  color:black;
+  font-family:'Verdana';
 }
 .left{
   display:flex;
