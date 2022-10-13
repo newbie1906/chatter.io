@@ -1,5 +1,6 @@
 import { useUserStore } from '../store/userStore';
-
+import axios from 'axios';
+const api = 'https://chatter-io.fly.dev/'
 export const getUser = () => {
   const userStore = useUserStore()
 
@@ -17,7 +18,7 @@ export const login = (user) => {
 }
 
 export const register = (payload) => {
-  // axios.post('register', payload)
+  return axios.post(`${api}api/register`, payload)
 }
 
 export const logout = (user) => {
