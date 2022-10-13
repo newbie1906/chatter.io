@@ -1,3 +1,9 @@
 <template>
-    <h1>Register</h1>
+  <RegisterComponent />
 </template>
+<style>
+
+</style>
+<script setup>
+  import RegisterComponent from '../components/RegisterComponent.vue'
+</script>
