@@ -24,8 +24,10 @@
 <script>
 import { defineComponent, ref } from 'vue';
 import { register } from '../service/auth.js';
+import { useRouter } from 'vue-router';
 export default defineComponent({
   setup(){
+    const router = useRouter();
     const username = ref('')
     const password = ref('')
     const repeatedPassword = ref('')
@@ -62,10 +64,10 @@ export default defineComponent({
       register(user)
       }
       catch (error){
-        console.log(error)
-
+        console.log(error.message)
+        return;
       }
-      
+      router.push('/login')
     }
     const alertPopup = () => {
       console.log('error')

@@ -1,5 +1,38 @@
 <script>
-export default {};
+import { defineComponent, ref } from "@vue/runtime-core";
+import { login } from '../service/auth';
+import { useUserStore } from '../store/userStore';
+import { useRouter } from "vue-router";
+
+export default defineComponent ({
+  setup(){
+    const router = useRouter();
+    const username = ref('');
+    const password = ref('');
+
+    const loginHandler = () => {
+      const user = {
+        username:username.value,
+        password:password.value
+      }
+      const loggingIn = login(user);
+      loggingIn.then((data)=>{
+        const userStore = useUserStore()
+        localStorage.setItem('user',JSON.stringify({name:username.value,token:data.data.access_token}))
+        userStore.setUser({name:username.value,token:data.data.access_token})
+        router.push('/')
+      })
+      .catch((error) => {
+        alert("BAD CREDENTIALS")
+      })
+    }
+    return{
+    username,
+    password,
+    loginHandler
+    }
+  },
+});
 </script>
 <template>
   <main>
@@ -7,11 +40,11 @@ export default {};
       <div class="left">
         <h1 class='title'>CHATTER.IO</h1>
         <span>Username:</span>
-        <input id="login" class="validInput" />
+        <input v-model="username" id="login" class="validInput" />
         <span>Password:</span>
-        <input id="password" type="password" class="validInput" />
+        <input v-model="password" id="password" type="password" class="validInput" />
         <span class="smallText"><a>Forgot password?</a></span>
-        <button class="validInput">Log In!</button>
+        <button class="validInput" @click="loginHandler">Log In!</button>
         <span>Don't have an account? <a href="/register">Click here</a></span>
       </div>
       <div class="right">

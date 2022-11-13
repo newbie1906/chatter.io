@@ -3,6 +3,13 @@
     <div class="chat-list">
       <div class="chat-list-title">Create room</div>
       <div>
+        <div class="chat-new">
+          <img 
+            src="../assets/plus.png" 
+            class="new-icon" 
+            @click="showAddNewChat">
+            <new-chat-component v-if="newChatOpen" @clickedExit="showAddNewChat"></new-chat-component>
+          </div>
         <div
           v-for="(chat) in chatRooms"
           :key="chat.id"
@@ -49,9 +56,13 @@ import {defineComponent, onMounted, ref, computed} from 'vue';
 import {useRouter} from 'vue-router';
 import {useUserStore} from '../store/userStore';
 import {useChatStore} from '../store/chatStore';
+import {getChatrooms} from '../service/chat';
 import { v4 as uuidv4 } from 'uuid';
+import LoginComponentVue from '../components/LoginComponent.vue';
+import NewChatComponent from '../components/NewChatComponent.vue';
 
 export default defineComponent({
+  components: { NewChatComponent },
   setup() {
     const chatMessage = ref('')
     const userStore = useUserStore()
@@ -63,6 +74,7 @@ export default defineComponent({
     const selectedChatRoom = computed(() => chatStore.getSelectedChatRoom)
     const messages = computed(() => chatStore.getMessages)
 
+    const newChatOpen = ref(false);
     const getMessages = async () => {
 //      const { data } = await axios.get('dupa/messages')
 
@@ -72,7 +84,9 @@ export default defineComponent({
     onMounted(() => {
       if (!user.value) {
         router.push('/login');
+        return;
       }
+      getChatrooms();
 
 //      getMessages()
 //
@@ -84,7 +98,10 @@ export default defineComponent({
     const handleSelectChatRoom = (chat) => {
       chatStore.setSelectedChatRoom(chat)
     }
-
+    const showAddNewChat = () => {
+      newChatOpen.value = !newChatOpen.value;
+      //todo 
+    }
     const handleSubmit = () => {
       const message = {
         value: chatMessage.value,
@@ -104,8 +121,10 @@ export default defineComponent({
       selectedChatRoom,
       user,
       messages,
+      newChatOpen,
       handleSubmit,
-      handleSelectChatRoom
+      handleSelectChatRoom,
+      showAddNewChat
     }
   },
 });
@@ -130,7 +149,9 @@ export default defineComponent({
     &-title {
       font-size: 24px;
     }
+    &.addChat{
 
+    }
     &-element {
       font-size: 14px;
       padding: 5px;
@@ -169,7 +190,6 @@ export default defineComponent({
         text-align: center;
         font-size: 24px;
       }
-
       &-message {
         padding: 5px 10px;
         background: #E4E6EB;
@@ -208,6 +228,20 @@ export default defineComponent({
         background: rgba(66, 68, 90, 1);
       }
     }
+  }
+}
+.chat-new{
+  display:flex;
+  justify-content:center;
+
+  & .new-icon{
+    background:white;
+    border-radius:100px;
+    width:1.5rem;
+  }
+  & .new-icon:hover{
+    background:yellow;
+    cursor: pointer;
   }
 }
 </style>
