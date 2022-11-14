@@ -1,6 +1,6 @@
 <template>
   <div class="gray-background">
-    <span class="exit" @click="exit()">EXIT</span>
+    <span class="exit" @click="exit">EXIT</span>
     <div class="new-chat-container">
       <h1>Dodaj nowy czat!</h1>
       <p>Podaj nazwę:<input v-model="name"></p>
@@ -38,7 +38,7 @@
   }
 </style>
 <script>
-import { defineComponent, ref } from "@vue/runtime-core";
+import { defineComponent, ref } from "vue";
 import { addNewChatroom } from "../service/chat";
   export default defineComponent({
     name:"AddNewChat",

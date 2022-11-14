@@ -26,11 +26,11 @@
         <div class="chat-box-title">Welcome to {{ selectedChatRoom.name }}</div>
         <div
           v-for="message in messages"
-          :key="message.id"
+          :key="message.message_id"
           class="chat-box-message"
           :class="{'author': message.user_id === user.id}"
         >
-          {{ message.value }}
+          {{ message.message_text }}
         </div>
       </div>
       <div v-else>
@@ -56,7 +56,7 @@ import {defineComponent, onMounted, ref, computed} from 'vue';
 import {useRouter} from 'vue-router';
 import {useUserStore} from '../store/userStore';
 import {useChatStore} from '../store/chatStore';
-import {getChatrooms} from '../service/chat';
+import {getChatrooms, getMessages} from '../service/chat';
 import { v4 as uuidv4 } from 'uuid';
 import LoginComponentVue from '../components/LoginComponent.vue';
 import NewChatComponent from '../components/NewChatComponent.vue';
@@ -75,18 +75,14 @@ export default defineComponent({
     const messages = computed(() => chatStore.getMessages)
 
     const newChatOpen = ref(false);
-    const getMessages = async () => {
-//      const { data } = await axios.get('dupa/messages')
-
-//      messages.value = data.messages
-    }
 
     onMounted(() => {
       if (!user.value) {
         router.push('/login');
         return;
       }
-      getChatrooms();
+        getChatrooms();
+
 
 //      getMessages()
 //
@@ -95,8 +91,10 @@ export default defineComponent({
 //      })
     });
 
-    const handleSelectChatRoom = (chat) => {
+    const handleSelectChatRoom = async (chat) => {
+      console.log(chat)
       chatStore.setSelectedChatRoom(chat)
+      getMessages(chat.chatroom_id)
     }
     const showAddNewChat = () => {
       newChatOpen.value = !newChatOpen.value;
@@ -148,9 +146,6 @@ export default defineComponent({
 
     &-title {
       font-size: 24px;
-    }
-    &.addChat{
-
     }
     &-element {
       font-size: 14px;

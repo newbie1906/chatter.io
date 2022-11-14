@@ -7,16 +7,6 @@ export const useChatStore = defineStore('chat', {
       ],
       selectedChatRoom: null,
       messages: [
-        {
-          id: 1,
-          user_id: 1,
-          value: 'abc'
-        },
-        {
-          id: 2,
-          user_id: 2,
-          value: 'abcd'
-        }
       ]
     }
   },
