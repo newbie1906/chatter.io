@@ -9,6 +9,7 @@
             class="new-icon" 
             @click="showAddNewChat">
             <new-chat-component v-if="newChatOpen" @clickedExit="showAddNewChat"></new-chat-component>
+            <new-user-to-chat-component v-if="newUserOpen" @clickedExit="showAddNewUserToChat"></new-user-to-chat-component>
           </div>
         <div
           v-for="(chat) in chatRooms"
@@ -23,6 +24,7 @@
     </div>
     <div class="chat-box-container">
       <div class="chat-box" v-if="selectedChatRoom">
+        <div @click="showAddNewUserToChat">+</div>
         <div class="chat-box-title">Welcome to {{ selectedChatRoom.name }}</div>
         <div
           v-for="message in messages"
@@ -30,7 +32,7 @@
           class="chat-box-message"
           :class="{'author': message.user_id === user.id}"
         >
-          {{ message.message_text }}
+          {{ message.value }}
         </div>
       </div>
       <div v-else>
@@ -58,12 +60,13 @@ import {useUserStore} from '../store/userStore';
 import {useChatStore} from '../store/chatStore';
 import {getChatrooms, getMessages} from '../service/chat';
 import { v4 as uuidv4 } from 'uuid';
-import LoginComponentVue from '../components/LoginComponent.vue';
 import NewChatComponent from '../components/NewChatComponent.vue';
+import NewUserToChatComponent from '../components/NewUserToChatComponent.vue';
 
 export default defineComponent({
-  components: { NewChatComponent },
+  components: { NewChatComponent, NewUserToChatComponent },
   setup() {
+    const api = 'ws://chatter-io.fly.dev/api';
     const chatMessage = ref('')
     const userStore = useUserStore()
     const chatStore = useChatStore()
@@ -75,20 +78,17 @@ export default defineComponent({
     const messages = computed(() => chatStore.getMessages)
 
     const newChatOpen = ref(false);
-
+    const newUserOpen = ref(false);
+    const socket = new WebSocket(`${api}/messages/ws?token=${userStore.getUser.token}`);
     onMounted(() => {
-      if (!user.value) {
-        router.push('/login');
-        return;
-      }
+      
         getChatrooms();
 
-
-//      getMessages()
-//
-//      socket.on('message', (message) => {
-//        messages.value.push(message)
-//      })
+    if(chatRooms.selectedChatRoom)
+     getMessages()
+      socket.onmessage = (message) => {
+        console.log(message);
+        }
     });
 
     const handleSelectChatRoom = async (chat) => {
@@ -100,17 +100,20 @@ export default defineComponent({
       newChatOpen.value = !newChatOpen.value;
       //todo 
     }
+    const showAddNewUserToChat = () => {
+      newUserOpen.value = !newUserOpen.value;
+      //todo 
+    }
     const handleSubmit = () => {
       const message = {
         value: chatMessage.value,
         id: uuidv4(),
-        user_id: messages.value.length % 2 === 0 ? 1 : 2,
+        user_id: 1,
       }
-
+      console.log(user.value)
       messages.value.push(message)
 
-      chatMessage.value = ''
-      // websocket.send('message', chatMessage.value)
+       socket.send(JSON.stringify(message))
     }
 
     return {
@@ -120,9 +123,11 @@ export default defineComponent({
       user,
       messages,
       newChatOpen,
+      newUserOpen,
       handleSubmit,
       handleSelectChatRoom,
-      showAddNewChat
+      showAddNewChat,
+      showAddNewUserToChat
     }
   },
 });

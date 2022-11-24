@@ -9,21 +9,27 @@ export const getChatrooms = async () => {
   const chatStore = useChatStore();
   const userStore = useUserStore();
   try{
-    const {data} = await axios.get(`${api}/api/chatrooms/`,{headers:{'Authorization':` Bearer ${userStore.getUser.token}`}})  
+    const {data} = await axios.get(`${api}/api/users/mychats`,{headers:{'Authorization':` Bearer ${userStore.getUser.token}`}})  
     chatStore.setChatRooms(data);
     return data
   }
   catch(err){
-    console.log(err)
-    if(err.response.status === 401)
+    if(err)
       router.push('/login')
   }
 }
 export const addNewChatroom = async (chat) =>{
+  chat.passcode = '';
   const userStore = useUserStore();
   const config = {headers:{'Authorization':` Bearer ${userStore.getUser.token}`}}
-  const {data} = await axios.post(`${api}/api/chatrooms/`,chat,config)
+  const {data} = await axios.post(`${api}/api/chatrooms`,chat,config)
   return data;
+}
+export const addUserToChatroom = async (payload) => {
+  const userStore = useUserStore();
+  const config = {headers:{'Authorization':` Bearer ${userStore.getUser.token}`}}
+  const {data} = await axios.post(`${api}/api/users/add/chatroom`,payload,config)
+  console.log(data);
 }
 export const getMessages = async (selectedChatRoomId) => {
   const userStore = useUserStore();

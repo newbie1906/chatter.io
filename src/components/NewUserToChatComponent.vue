@@ -4,8 +4,7 @@
     <div class="new-chat-container">
       <h1>Dodaj nowy czat!</h1>
       <p>Podaj nazwę:<input v-model="name"></p>
-      <p>Czy ten czat jest prywatny?:<input type="checkbox" v-model="isPrivate"></p>
-      <button @click="addNewChat">DODAJ CZAT</button>
+      <button @click="addNewUser">DODAJ Użytkownika</button>
     </div>
   </div>
 </template>
@@ -38,27 +37,23 @@
 </style>
 <script>
 import { defineComponent, ref } from "vue";
-import { addNewChatroom } from "../service/chat";
+import { addUserToChatroom } from "../service/chat";
+import { useChatStore } from "../store/chatStore";
   export default defineComponent({
-    name:"AddNewChat",
+    name:"AddNewUser",
     emits: ['clickedExit'],
     setup(){
       const name = ref('');
-      const isPrivate = ref(false);
+      const chatStore = useChatStore();
 
-
-      const addNewChat = () => {
-        const chat = {
-          name:name.value,
-          private:isPrivate.value,
-        }
-        addNewChatroom(chat)
+      const addNewUser = () => {
+        const payload = {user:name.value,chatroom_id:chatStore.getSelectedChatRoom.chatroom_id}; 
+        addUserToChatroom(payload)
       }
 
       return{
-        addNewChat,
+        addNewUser,
         name,
-        isPrivate,
       }
     },
     methods:{
