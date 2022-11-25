@@ -4,14 +4,21 @@ import qs from 'qs';
 
 const api = 'https://chatter-io.fly.dev'
 
-export const getUser = () => {
+export const getUser = async () => {
   const userStore = useUserStore()
 
-  const user = localStorage.getItem('user');
-
-  if (user) {
-    userStore.setUser(JSON.parse(user))
+  const token = localStorage.getItem('token');
+  const config = {headers:{'Authorization':` Bearer ${token}`}}
+  try{
+    const {data} = await axios.get(`${api}/api/users/self`,config)
+    console.log({data});
+    userStore.setUser(data);
   }
+  catch(e){
+    console.log(e);
+    //logout()
+  }
+  
 
   return null;
 };

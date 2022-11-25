@@ -1,6 +1,6 @@
 <script>
 import { defineComponent, ref } from "@vue/runtime-core";
-import { login } from '../service/auth';
+import { login, getUser } from '../service/auth';
 import { useUserStore } from '../store/userStore';
 import { useRouter } from "vue-router";
 
@@ -16,10 +16,9 @@ export default defineComponent ({
         password:password.value
       }
       const loggingIn = login(user);
-      loggingIn.then((data)=>{
-        const userStore = useUserStore()
-        localStorage.setItem('user',JSON.stringify({name:username.value,token:data.data.access_token}))
-        userStore.setUser({name:username.value,token:data.data.access_token})
+      loggingIn.then(async ({data})=>{
+        localStorage.setItem('token',`${data.access_token}`)
+        await getUser()
         router.push('/')
       })
       .catch((error) => {
@@ -42,7 +41,7 @@ export default defineComponent ({
         <span>Username:</span>
         <input v-model="username" id="login" class="validInput" />
         <span>Password:</span>
-        <input v-model="password" id="password" type="password" class="validInput" />
+        <input v-model="password" id="password" type="password" class="validInput" @keyup.enter="loginHandler" />
         <span class="smallText"><a>Forgot password?</a></span>
         <button class="validInput" @click="loginHandler">Log In!</button>
         <span>Don't have an account? <a href="/register">Click here</a></span>
