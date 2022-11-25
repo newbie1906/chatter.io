@@ -4,30 +4,29 @@ export const useChatStore = defineStore('chat', {
   state: () => {
     return {
       chatRooms: [
-        {
-          id: 1,
-          name: 'Pokój 1'
-        },
-        {
-          id: 2,
-          name: 'Pokój 2'
-        },
-        {
-          id: 3,
-          name: 'Pokój 3'
-        }
       ],
       selectedChatRoom: null,
       messages: [
         {
-          id: 1,
+          chatroom_id:1,
+          message_id: 1,
           user_id: 1,
-          value: 'duuupa'
+          message_text: 'abc'
         },
         {
-          id: 2,
+          chatroom_id:1,
           user_id: 2,
-          value: 'duuupa22222'
+          message_text: 'abcd',
+        },
+        {
+          chatroom_id: 1,
+          user_id: 1,
+          message_text: 'abc'
+        },
+        {
+          chatroom_id: 1,
+          user_id: 1,
+          message_text: 'abcd'
         }
       ]
     }
