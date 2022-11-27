@@ -33,7 +33,7 @@
           :class="{'author': message.user_id === user.user_id}"
         >
           <div class="chat-box-author">{{ user.username }}</div>
-          <div class="chat-box-message">{{ message.value }}</div>
+          <div class="chat-box-message">{{ message.message_text }}</div>
         </div>
       </div>
       <div v-else>
@@ -67,7 +67,7 @@ import NewUserToChatComponent from '../components/NewUserToChatComponent.vue';
 export default defineComponent({
   components: { NewChatComponent, NewUserToChatComponent },
   setup() {
-    const api = 'wss://chatter-io.fly.dev/api';
+    const api = `wss://chatter-io.fly.dev/api`;
     const chatMessage = ref('')
     const userStore = useUserStore()
     const chatStore = useChatStore()
@@ -80,25 +80,25 @@ export default defineComponent({
 
     const newChatOpen = ref(false);
     const newUserOpen = ref(false);
-    const socket = new WebSocket(`${api}/messages/ws?token=${userStore.getToken}`);
+    let socket;
     onMounted(() => {
       getChatrooms();
       if(chatRooms.selectedChatRoom){
         getMessages()
       }
 
+    });
+
+    const handleSelectChatRoom = async (chat) => {
+      chatStore.setSelectedChatRoom(chat)
+      socket = new WebSocket(`${api}/messages/ws/${chat.chatroom_id}?token=${userStore.getToken}`);
       socket.onmessage = (payload) => {
         const message = JSON.parse(payload.data);
-        if(message.user_id !== userStore.getUser.user_id){
+        if(message.user_id !== userStore.getUser.user_id && message.message !== 'got connected'){
           chatStore.messages.push(message);
         }
 
       }
-    });
-
-    const handleSelectChatRoom = async (chat) => {
-      console.log(chat)
-      chatStore.setSelectedChatRoom(chat)
       getMessages(chat.chatroom_id)
     }
     const showAddNewChat = () => {
@@ -111,11 +111,10 @@ export default defineComponent({
     }
     const handleSubmit = () => {
       const message = {
-        value: chatMessage.value,
-        id: uuidv4(),
-        user_id: userStore.getUser.user_id,
+        message: chatMessage.value,
+        username: userStore.getUser.username
       }
-      messages.value.push(message)
+      messages.value.push({message_text:message.message,username:message.username,user_id:userStore.getUser.user_id,chatroom_id:selectedChatRoom.chatroom_id})
       chatMessage.value = '';
       socket.send(JSON.stringify(message))
     }
