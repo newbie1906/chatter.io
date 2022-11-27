@@ -30,7 +30,7 @@
           v-for="message in messages"
           :key="message.message_id"
           class="chat-box-wrapper"
-          :class="{'author': message.user_id === user.user_id}"
+          :class="{'author': message.username === user.username}"
         >
           <div class="chat-box-author">{{ user.username }}</div>
           <div class="chat-box-message">{{ message.message_text }}</div>
@@ -94,8 +94,8 @@ export default defineComponent({
       socket = new WebSocket(`${api}/messages/ws/${chat.chatroom_id}?token=${userStore.getToken}`);
       socket.onmessage = (payload) => {
         const message = JSON.parse(payload.data);
-        if(message.user_id !== userStore.getUser.user_id && message.message !== 'got connected'){
-          chatStore.messages.push(message);
+        if(message.message !== 'got connected'){
+          chatStore.messages.push({message_text:message.message,username:message.username});
         }
 
       }
@@ -114,7 +114,6 @@ export default defineComponent({
         message: chatMessage.value,
         username: userStore.getUser.username
       }
-      messages.value.push({message_text:message.message,username:message.username,user_id:userStore.getUser.user_id,chatroom_id:selectedChatRoom.chatroom_id})
       chatMessage.value = '';
       socket.send(JSON.stringify(message))
     }
