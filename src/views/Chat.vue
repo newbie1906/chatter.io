@@ -29,10 +29,11 @@
         <div
           v-for="message in messages"
           :key="message.message_id"
-          class="chat-box-message"
-          :class="{'author': message.user_id === user.id}"
+          class="chat-box-wrapper"
+          :class="{'author': message.user_id === user.user_id}"
         >
-          {{ message.value }}
+          <div class="chat-box-author">{{ user.username }}</div>
+          <div class="chat-box-message">{{ message.value }}</div>
         </div>
       </div>
       <div v-else>
@@ -79,16 +80,20 @@ export default defineComponent({
 
     const newChatOpen = ref(false);
     const newUserOpen = ref(false);
-    const socket = new WebSocket(`${api}/messages/ws?token=${userStore.getUser.token}`);
+    const socket = new WebSocket(`${api}/messages/ws?token=${userStore.getToken}`);
     onMounted(() => {
-      
-        getChatrooms();
+      getChatrooms();
+      if(chatRooms.selectedChatRoom){
+        getMessages()
+      }
 
-    if(chatRooms.selectedChatRoom)
-     getMessages()
-      socket.onmessage = (message) => {
-        console.log(message);
+      socket.onmessage = (payload) => {
+        const message = JSON.parse(payload.data);
+        if(message.user_id !== userStore.getUser.user_id){
+          chatStore.messages.push(message);
         }
+
+      }
     });
 
     const handleSelectChatRoom = async (chat) => {
@@ -108,12 +113,11 @@ export default defineComponent({
       const message = {
         value: chatMessage.value,
         id: uuidv4(),
-        user_id: 1,
+        user_id: userStore.getUser.user_id,
       }
-      console.log(user.value)
       messages.value.push(message)
-
-       socket.send(JSON.stringify(message))
+      chatMessage.value = '';
+      socket.send(JSON.stringify(message))
     }
 
     return {
@@ -135,6 +139,8 @@ export default defineComponent({
 
 <style lang="scss">
 .chat-container {
+  min-width:100vw;
+  min-height:100vh;
   flex: 1;
   display: flex;
   justify-content: space-between;
@@ -185,10 +191,26 @@ export default defineComponent({
       flex-direction: column;
       gap: 5px;
       overflow:auto;
-
       &-title {
         text-align: center;
         font-size: 24px;
+      }
+      &-author{
+        font-size:12px;
+      }
+      &-wrapper{
+        display:flex;
+        flex-direction:column;
+
+        &.author {
+          align-self: flex-end;
+          & .chat-box-message{
+            background: #55AAFF;
+          }
+          & .chat-box-author{
+            text-align:right;
+          }
+        }
       }
       &-message {
         padding: 5px 10px;
@@ -196,10 +218,7 @@ export default defineComponent({
         align-self: flex-start;
         border-radius: 8px;
 
-        &.author {
-          background: #55AAFF;
-          align-self: flex-end;
-        }
+
       }
     }
 

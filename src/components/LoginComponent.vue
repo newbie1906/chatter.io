@@ -1,10 +1,12 @@
 <script>
 import { defineComponent, ref } from "@vue/runtime-core";
-import { login } from '../service/auth';
+import { login, getUser } from '../service/auth';
 import { useUserStore } from '../store/userStore';
 import { useRouter } from "vue-router";
+import { VTextField, VBtn } from 'vuetify/components'
 
 export default defineComponent ({
+  components:{VTextField, VBtn},
   setup(){
     const router = useRouter();
     const username = ref('');
@@ -16,10 +18,9 @@ export default defineComponent ({
         password:password.value
       }
       const loggingIn = login(user);
-      loggingIn.then((data)=>{
-        const userStore = useUserStore()
-        localStorage.setItem('user',JSON.stringify({name:username.value,token:data.data.access_token}))
-        userStore.setUser({name:username.value,token:data.data.access_token})
+      loggingIn.then(async ({data})=>{
+        localStorage.setItem('token',`${data.access_token}`)
+        await getUser()
         router.push('/')
       })
       .catch((error) => {
@@ -39,12 +40,10 @@ export default defineComponent ({
     <div class="login-wrapper">
       <div class="left">
         <h1 class='title'>CHATTER.IO</h1>
-        <span>Username:</span>
-        <input v-model="username" id="login" class="validInput" />
-        <span>Password:</span>
-        <input v-model="password" id="password" type="password" class="validInput" />
+        <v-text-field v-model="username" label="Username"></v-text-field>
+        <v-text-field v-model="password" label="Password" type="password" @keyup.enter="loginHandler"></v-text-field>
         <span class="smallText"><a>Forgot password?</a></span>
-        <button class="validInput" @click="loginHandler">Log In!</button>
+        <v-btn class="submit-button" @click="loginHandler" label="Log In!">Log In!</v-btn>
         <span>Don't have an account? <a href="/register">Click here</a></span>
       </div>
       <div class="right">
@@ -85,6 +84,9 @@ box-shadow: 9px 21px 41px -6px rgba(66, 68, 90, 1);
   color: white;
   background: rgba(127,127,127,0.5);
   border-radius:10px;
+}
+.submit-button{
+  color:black;
 }
 .validInput {
   width: 75%;
