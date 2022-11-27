@@ -3,7 +3,6 @@ import { getUser } from './service/auth';
 
 getUser();
 
-//localStorage.setItem('user', JSON.stringify({id: 1, name: 'John Doe', token: 'token'}))
 </script>
 
 <template>

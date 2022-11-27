@@ -139,6 +139,8 @@ export default defineComponent({
 
 <style lang="scss">
 .chat-container {
+  min-width:100vw;
+  min-height:100vh;
   flex: 1;
   display: flex;
   justify-content: space-between;
@@ -204,6 +206,9 @@ export default defineComponent({
           align-self: flex-end;
           & .chat-box-message{
             background: #55AAFF;
+          }
+          & .chat-box-author{
+            text-align:right;
           }
         }
       }
