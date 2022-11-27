@@ -67,7 +67,7 @@ import NewUserToChatComponent from '../components/NewUserToChatComponent.vue';
 export default defineComponent({
   components: { NewChatComponent, NewUserToChatComponent },
   setup() {
-    const api = 'ws://chatter-io.fly.dev/api';
+    const api = 'wss://chatter-io.fly.dev/api';
     const chatMessage = ref('')
     const userStore = useUserStore()
     const chatStore = useChatStore()
