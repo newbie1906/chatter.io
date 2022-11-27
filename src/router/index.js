@@ -4,6 +4,7 @@ import Register from '../views/Register.vue';
 import Chat from '../views/Chat.vue';
 
 const router = createRouter({
+  mode:"history",
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
