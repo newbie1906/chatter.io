@@ -20,6 +20,7 @@ export default defineComponent({
       userStore.setUser=null;
       localStorage.removeItem('token');
       router.push('/login')
+      window.location.reload();
     }
     
 
