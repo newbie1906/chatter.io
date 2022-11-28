@@ -34,7 +34,7 @@
             class="chat-box-wrapper"
             :class="{'author': message.username === user.username || message.user_id === user.user_id}"
           >
-            <div class="chat-box-author">{{ message.user_id }}</div>
+            <div class="chat-box-author">{{ message.username }}</div>
             <div class="chat-box-message">{{ message.message_text }}</div>
           </div>
         </div>
