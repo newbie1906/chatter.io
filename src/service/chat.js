@@ -9,7 +9,7 @@ export const getChatrooms = async () => {
   const chatStore = useChatStore();
   const userStore = useUserStore();
   try{
-    const {data} = await axios.get(`${api}/api/users/mychats`,{headers:{'Authorization':` Bearer ${userStore.getToken}`}})  
+    const {data} = await axios.get(`${api}/api/users/get/chatrooms`,{headers:{'Authorization':` Bearer ${userStore.getToken}`}})  
     chatStore.setChatRooms(data);
     return data
   }

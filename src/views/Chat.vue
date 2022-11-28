@@ -32,7 +32,7 @@
           class="chat-box-wrapper"
           :class="{'author': message.username === user.username || message.user_id === user.user_id}"
         >
-          <div class="chat-box-author">{{ user.username }}</div>
+          <div class="chat-box-author">{{ message.user_id }}</div>
           <div class="chat-box-message">{{ message.message_text }}</div>
         </div>
       </div>
@@ -98,7 +98,7 @@ export default defineComponent({
       socket.value = new WebSocket(`${api}/messages/ws/${chat.chatroom_id}?token=${userStore.getToken}`);
       socket.value.onmessage = (payload) => {
         const message = JSON.parse(payload.data);
-        if(message.message !== 'got connected'){
+        if(!message.status){
           chatStore.messages.push({message_text:message.message,username:message.username});
         }
 
@@ -156,6 +156,7 @@ export default defineComponent({
     background: #55AAFF;
     color: #fff;
     padding: 20px;
+    overflow:auto;
 
     &-title {
       font-size: 24px;
