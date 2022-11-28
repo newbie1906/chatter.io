@@ -1,58 +1,61 @@
 <template>
-  <div class="chat-container">
-    <div class="chat-list">
-      <div class="chat-list-title">Create room</div>
-      <div>
-        <div class="chat-new">
-          <img 
-            src="../assets/plus.png" 
-            class="new-icon" 
-            @click="showAddNewChat">
-            <new-chat-component v-if="newChatOpen" @clickedExit="showAddNewChat"></new-chat-component>
-            <new-user-to-chat-component v-if="newUserOpen" @clickedExit="showAddNewUserToChat"></new-user-to-chat-component>
-          </div>
-        <div
-          v-for="(chat) in chatRooms"
-          :key="chat.id"
-          class="chat-list-element"
-          :class="{'active': selectedChatRoom?.id === chat.id}"
-          @click="handleSelectChatRoom(chat)"
-        >
-          {{ chat.name }}
-        </div>
-      </div>
-    </div>
-    <div class="chat-box-container">
-      <div class="chat-box" v-if="selectedChatRoom">
-        <div @click="showAddNewUserToChat">+</div>
-        <div class="chat-box-title">Welcome to {{ selectedChatRoom.name }}</div>
-        <div
-          v-for="message in messages"
-          :key="message.message_id"
-          class="chat-box-wrapper"
-          :class="{'author': message.username === user.username || message.user_id === user.user_id}"
-        >
-          <div class="chat-box-author">{{ message.user_id }}</div>
-          <div class="chat-box-message">{{ message.message_text }}</div>
-        </div>
-      </div>
-      <div v-else>
-        Najpierw wybierz pokój
-      </div>
-      <div class="chat-input">
-        <input
-          type="text"
-          v-model="chatMessage"
-          @keyup.enter="handleSubmit"
-        />
+  <div class="nav-chat-container">
+    <main-navbar-vue></main-navbar-vue>
+    <div class="chat-container">
+      <div class="chat-list">
+        <div class="chat-list-title">Create room</div>
         <div>
-          <button @click="handleSubmit">
-            Wyślij
-          </button>
+          <div class="chat-new">
+            <img 
+              src="../assets/plus.png" 
+              class="new-icon" 
+              @click="showAddNewChat">
+              <new-chat-component v-if="newChatOpen" @clickedExit="showAddNewChat"></new-chat-component>
+              <new-user-to-chat-component v-if="newUserOpen" @clickedExit="showAddNewUserToChat"></new-user-to-chat-component>
+            </div>
+          <div
+            v-for="(chat) in chatRooms"
+            :key="chat.id"
+            class="chat-list-element"
+            :class="{'active': selectedChatRoom?.id === chat.id}"
+            @click="handleSelectChatRoom(chat)"
+          >
+            {{ chat.name }}
+          </div>
+        </div>
+      </div>
+      <div class="chat-box-container">
+        <div class="chat-box" v-if="selectedChatRoom">
+          <div @click="showAddNewUserToChat">+</div>
+          <div class="chat-box-title">Welcome to {{ selectedChatRoom.name }}</div>
+          <div
+            v-for="message in messages"
+            :key="message.message_id"
+            class="chat-box-wrapper"
+            :class="{'author': message.username === user.username || message.user_id === user.user_id}"
+          >
+            <div class="chat-box-author">{{ message.username }}</div>
+            <div class="chat-box-message">{{ message.message_text }}</div>
+          </div>
+        </div>
+        <div v-else>
+          Najpierw wybierz pokój
+        </div>
+        <div class="chat-input">
+          <input
+            type="text"
+            v-model="chatMessage"
+            @keyup.enter="handleSubmit"
+          />
+          <div>
+            <button @click="handleSubmit">
+              Wyślij
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+</div>
 </template>
 <script>
 import {defineComponent, onMounted, ref, computed} from 'vue';
@@ -63,9 +66,10 @@ import {getChatrooms, getMessages} from '../service/chat';
 import { v4 as uuidv4 } from 'uuid';
 import NewChatComponent from '../components/NewChatComponent.vue';
 import NewUserToChatComponent from '../components/NewUserToChatComponent.vue';
+import MainNavbarVue from '../components/MainNavbar.vue';
 
 export default defineComponent({
-  components: { NewChatComponent, NewUserToChatComponent },
+  components: { NewChatComponent, NewUserToChatComponent, MainNavbarVue },
   setup() {
     const api = `wss://chatter-io.fly.dev/api`;
     const chatMessage = ref('')
