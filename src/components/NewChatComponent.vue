@@ -73,25 +73,24 @@ import { VTextField, VBtn, VCheckbox } from 'vuetify/components'
       const name = ref('');
       const isPrivate = ref(false);
 
+    const addNewChat = () => {
+      const chat = {
+        name: name.value,
+        private: isPrivate.value,
+      };
+      addNewChatroom(chat);
+    };
 
-      const addNewChat = () => {
-        const chat = {
-          name:name.value,
-          private:isPrivate.value,
-        }
-        addNewChatroom(chat)
-      }
-
-      return{
-        addNewChat,
-        name,
-        isPrivate,
-      }
+    return {
+      addNewChat,
+      name,
+      isPrivate,
+    };
+  },
+  methods: {
+    exit() {
+      this.$emit("clickedExit");
     },
-    methods:{
-      exit(){
-        this.$emit('clickedExit')
-      }
-    }
-  })
+  },
+});
 </script>
