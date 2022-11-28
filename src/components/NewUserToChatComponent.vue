@@ -2,14 +2,15 @@
   <div class="gray-background">
     <span class="exit" @click="exit">EXIT</span>
     <div class="new-chat-container">
-      <h1>Dodaj nowy czat!</h1>
-      <p>Podaj nazwę:<input v-model="name"></p>
-      <button @click="addNewUser">DODAJ Użytkownika</button>
+      <h1>Add user to chat room!</h1>
+      <div>User name:<v-text-field class="new-user-input" v-model="name" label="Name"></v-text-field></div>
+      <v-btn @click="addNewUser">Add User!</v-btn>
     </div>
   </div>
 </template>
 <style>
   .gray-background{
+    color:black;
     position:fixed;
     top:0;
     left:0;
@@ -25,7 +26,7 @@
   .new-chat-container{
     width:50vw;
     height:50vh;
-    background:green;
+    background:white;
     
   }
   .exit{
@@ -34,12 +35,18 @@
     right:0;
     top:0;
   }
+  .new-user-input{
+    width:150%;
+    margin:0;
+  }
 </style>
 <script>
 import { defineComponent, ref } from "vue";
 import { addUserToChatroom } from "../service/chat";
 import { useChatStore } from "../store/chatStore";
+import { VTextField,VBtn } from "vuetify/components";
   export default defineComponent({
+    components:{VTextField,VBtn},
     name:"AddNewUser",
     emits: ['clickedExit'],
     setup(){
