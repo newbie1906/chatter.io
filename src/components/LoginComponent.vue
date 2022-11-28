@@ -24,7 +24,9 @@ export default defineComponent ({
         router.push('/')
       })
       .catch((error) => {
-        alert("BAD CREDENTIALS")
+        if(error.response.status === 422){
+          alert("chujowe credentialsy")
+        }
       })
     }
     return{
@@ -44,7 +46,7 @@ export default defineComponent ({
         <v-text-field v-model="password" label="Password" type="password" @keyup.enter="loginHandler"></v-text-field>
         <span class="smallText"><a>Forgot password?</a></span>
         <v-btn class="submit-button" @click="loginHandler" label="Log In!">Log In!</v-btn>
-        <span>Don't have an account? <a href="/register">Click here</a></span>
+        <span class="bottom-text">Don't have an account? <a href="/register">Click here</a></span>
       </div>
       <div class="right">
         <img src="./icons/icon.png" class="icon" />
@@ -62,6 +64,7 @@ main{
   background:#55AAFF;
 }
 .title{
+  margin-bottom:25px;
   color:black;
   font-family:'Verdana';
 }
@@ -108,5 +111,8 @@ a {
   user-select: none;
   width:100%;
   height:100%;
+}
+.bottom-text{
+  margin-top:25px;
 }
 </style>

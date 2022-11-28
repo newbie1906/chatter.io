@@ -4,14 +4,14 @@
       <div class="login-wrapper">
         <div class="left">
           <h1 class='title'>CHATTER.IO</h1>
-          <input v-model="username" class="validInput" placeholder="Username" />
-          <input v-model="password" type="password" class="validInput" placeholder="Password"/>
-          <input v-model="repeatedPassword" type="password" class="validInput" placeholder="Repeat password" />
-          <input v-model="email" class="validInput" placeholder="E-mail" />
+          <v-text-field v-model="username" label="Username"></v-text-field>
+          <v-text-field v-model="password" label="Password" type="password"></v-text-field>
+          <v-text-field v-model="repeatedPassword" label="Repeated password" type="password"></v-text-field>
+          <v-text-field v-model="email" placeholder="E-mail" ></v-text-field>
           <div><input type='checkbox' /> agree terms of sprzedawania narządów </div>
-          <button 
-          class="validInput" 
-          @click="handleSubmit">Register</button>
+          <v-btn 
+          class="submit-button" 
+          @click="handleSubmit">Register</v-btn>
         </div>
         <div class="right">
           <img src="./icons/icon.png" class="icon" />
@@ -25,7 +25,9 @@
 import { defineComponent, ref } from 'vue';
 import { register } from '../service/auth.js';
 import { useRouter } from 'vue-router';
+import { VTextField, VBtn } from 'vuetify/components'
 export default defineComponent({
+  components:{VTextField,VBtn},
   setup(){
     const router = useRouter();
     const username = ref('')
@@ -106,7 +108,7 @@ export default defineComponent({
   -moz-box-shadow: 9px 21px 41px -6px rgba(66, 68, 90, 1);
   box-shadow: 9px 21px 41px -6px rgba(66, 68, 90, 1);
     width: 40vw;
-    height: 45vh;
+    height: 55vh;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -121,6 +123,9 @@ export default defineComponent({
     padding: 5px;
     margin: 5px;
     text-align:center;
+  }
+  .submit-button{
+    color:black;
   }
   a {
     cursor: pointer;

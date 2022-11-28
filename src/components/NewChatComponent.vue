@@ -3,7 +3,7 @@
     <span class="exit" @click="exit">EXIT</span>
     <div class="new-chat-container">
       <h1>Dodaj nowy czat!</h1>
-      <p>Podaj nazwę:<input v-model="name"></p>
+      <p>Podaj nazwę:<v-text-field v-model="name" label="Name"></v-text-field></p>
       <p>Czy ten czat jest prywatny?:<input type="checkbox" v-model="isPrivate"></p>
       <button @click="addNewChat">DODAJ CZAT</button>
     </div>
@@ -39,7 +39,9 @@
 <script>
 import { defineComponent, ref } from "vue";
 import { addNewChatroom } from "../service/chat";
+import { VTextField, VBtn, VCheckbox } from 'vuetify/components'
   export default defineComponent({
+    components:{VTextField,VBtn, VCheckbox},
     name:"AddNewChat",
     emits: ['clickedExit'],
     setup(){
