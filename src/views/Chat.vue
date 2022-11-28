@@ -30,7 +30,7 @@
           v-for="message in messages"
           :key="message.message_id"
           class="chat-box-wrapper"
-          :class="{'author': message.username === user.username}"
+          :class="{'author': message.username === user.username || message.user_id === user.user_id}"
         >
           <div class="chat-box-author">{{ user.username }}</div>
           <div class="chat-box-message">{{ message.message_text }}</div>
@@ -80,7 +80,7 @@ export default defineComponent({
 
     const newChatOpen = ref(false);
     const newUserOpen = ref(false);
-    let socket;
+    const socket = ref(null);
     onMounted(() => {
       getChatrooms();
       if(chatRooms.selectedChatRoom){
@@ -91,8 +91,12 @@ export default defineComponent({
 
     const handleSelectChatRoom = async (chat) => {
       chatStore.setSelectedChatRoom(chat)
-      socket = new WebSocket(`${api}/messages/ws/${chat.chatroom_id}?token=${userStore.getToken}`);
-      socket.onmessage = (payload) => {
+      if(socket.value){
+        socket.value.close();
+        socket.value = null;
+      }
+      socket.value = new WebSocket(`${api}/messages/ws/${chat.chatroom_id}?token=${userStore.getToken}`);
+      socket.value.onmessage = (payload) => {
         const message = JSON.parse(payload.data);
         if(message.message !== 'got connected'){
           chatStore.messages.push({message_text:message.message,username:message.username});
@@ -115,7 +119,7 @@ export default defineComponent({
         username: userStore.getUser.username
       }
       chatMessage.value = '';
-      socket.send(JSON.stringify(message))
+      socket.value.send(JSON.stringify(message))
     }
 
     return {

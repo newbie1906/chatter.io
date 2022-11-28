@@ -8,6 +8,7 @@ export const getUser = async () => {
   const userStore = useUserStore()
 
   const token = localStorage.getItem('token');
+  userStore.setToken(token);
   const config = {headers:{'Authorization':` Bearer ${token}`}}
   try{
     const {data} = await axios.get(`${api}/api/users/self`,config)

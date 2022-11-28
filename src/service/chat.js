@@ -14,7 +14,6 @@ export const getChatrooms = async () => {
     return data
   }
   catch(err){
-    if(err)
       router.push('/login')
   }
 }

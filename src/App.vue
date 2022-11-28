@@ -1,7 +1,16 @@
 <script setup>
 import { getUser } from './service/auth';
+import { useRouter } from 'vue-router';
 
-getUser();
+const router = useRouter();
+try{
+  getUser();
+}
+catch(e){
+  e.STATUS_CODE === 401 ? localStorage.removeItem('token') : console.log(e);
+  router.push('/login')
+}
+
 
 </script>
 
