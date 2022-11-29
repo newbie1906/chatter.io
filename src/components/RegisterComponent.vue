@@ -75,7 +75,7 @@ export default defineComponent({
         snackbars.pushSnackbar({
           title: "Error",
           color: "red",
-          message: `There was a problem with your sign-up: ${error}`,
+          message: `There was a problem with your sign-up:\n ${error}`,
         });
         return;
       }

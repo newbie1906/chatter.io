@@ -1,39 +1,60 @@
 <template>
   <v-snackbar
     v-for="(snackbar, index) in currentSnackbars"
-    :key="index"
-    :timeout="2000"
-    :style="{ bottom: index * 200 }"
+    :key="snackbar.id"
     location="bottom right"
-    model-value
+    :timeout="8000"
+    rounded
+    vertical
+    max-width="380px"
+    height="165px"
+    :style="{ bottom: `${index * 180 + 15}px`, top: 'unset' }"
+    transition="fab-transition"
+    v-model="snackbar.active"
     :color="snackbar.color"
     multi-line
   >
-    <div class="text-h5">{{ snackbar.title }}</div>
-    <div class="text-body-2">{{ snackbar.message }}</div>
+    <div class="text-h5" :style="{ marginBottom: '5px' }">
+      {{ snackbar.title }}
+    </div>
+    <div class="text-body-2" :style="{ overflow: 'hidden', maxHeight: '100%' }">
+      {{ snackbar.message }}
+    </div>
+    <template v-slot:actions>
+      <v-btn
+        color="red-lighten-7"
+        variant="tonal"
+        @click="snackbar.active = false"
+      >
+        Close
+      </v-btn></template
+    >
   </v-snackbar>
 </template>
 
 <script>
 import { defineComponent, ref } from "vue";
-import { VSnackbar } from "vuetify/components";
+import { VSnackbar, VBtn } from "vuetify/components";
 import { useSnackbarStore } from "../store/snackbarStore";
 
 export default defineComponent({
-  components: { VSnackbar },
+  components: {
+    VSnackbar,
+    VBtn,
+  },
   setup() {
     const currentSnackbars = ref([]);
     const snackbars = useSnackbarStore();
-    snackbars.$onAction(({ name }) => {
+    snackbars.$onAction(({ name, args }) => {
       if (name === "pushSnackbar") {
-        const queue = snackbars.snackbarsQueue;
+        const queue = args;
         currentSnackbars.value.push(
           ...queue.map((s) => ({ ...s, active: true }))
         );
         snackbars.flushSnackbars();
         setTimeout(() => {
-          currentSnackbars.value = currentSnackbars.value.slice(queue.length);
-        }, 5000);
+          currentSnackbars.value.splice(0, 1);
+        }, 8200);
       }
     });
 
@@ -42,4 +63,9 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style>
+.v-snackbar__wrapper {
+  min-width: unset;
+  height: 100%;
+}
+</style>
