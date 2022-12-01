@@ -13,6 +13,7 @@
           color="primary"
           label="Username"
           class="mb-2"
+          @submit="loginHandler"
           :rules="[requireRule]"
         ></v-text-field>
         <v-text-field
@@ -22,6 +23,7 @@
           type="password"
           name="password"
           class="mb-2"
+          @submit="loginHandler"
           :rules="[requireRule]"
         ></v-text-field>
         <div class="smallText ml-2">

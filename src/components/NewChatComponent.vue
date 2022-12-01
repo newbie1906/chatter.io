@@ -69,7 +69,7 @@ import { VTextField, VBtn, VCheckbox } from 'vuetify/components'
     components:{VTextField,VBtn, VCheckbox},
     name:"AddNewChat",
     emits: ['clickedExit'],
-    setup(){
+    setup(_, { emit }){
       const name = ref('');
       const isPrivate = ref(false);
 
@@ -78,7 +78,14 @@ import { VTextField, VBtn, VCheckbox } from 'vuetify/components'
         name: name.value,
         private: isPrivate.value,
       };
-      addNewChatroom(chat);
+      try{
+        addNewChatroom(chat);
+        emit('clickedExit');
+      }
+      catch(e){
+        console.log(e);
+      }
+      
     };
 
     return {

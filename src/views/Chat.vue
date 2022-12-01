@@ -44,7 +44,7 @@
           Welcome to {{ selectedChatRoom.name }}
         </div>
       </div>
-      <div class="chat-box">
+      <div class="chat-box" ref="chatBox">
         <div
           v-for="message in messages"
           :key="message.message_id"
@@ -110,6 +110,7 @@ const messages = computed(() => chatStore.getMessages);
 const newChatOpen = ref(false);
 const newUserOpen = ref(false);
 const socket = ref(null);
+const chatBox = ref(null);
 
 onMounted(() => {
   getChatrooms();
@@ -137,10 +138,13 @@ const handleSelectChatRoom = async (chat) => {
       });
     }
   };
-
+  
   getMessages(chat.chatroom_id);
 };
 const showAddNewChat = () => {
+  if(newChatOpen.value === true){
+    getChatrooms();
+  }
   newChatOpen.value = !newChatOpen.value;
   //todo
 };
@@ -155,6 +159,7 @@ const handleSubmit = () => {
   };
   chatMessage.value = "";
   socket.value.send(JSON.stringify(message));
+  chatBox.value.scrollTop = chatBox.value.scrollHeight;
 };
 </script>
 
