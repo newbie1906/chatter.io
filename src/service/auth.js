@@ -34,6 +34,7 @@ export const login = async (user) => {
 };
 
 export const register = (payload) => {
+  console.log("register");
   return axios.post(`${api}/api/register`, payload);
 };
 

@@ -1,7 +1,9 @@
 <script setup>
 import SnackbarsDisplay from "./components/SnackbarsDisplay.vue";
+import colors from "vuetify/lib/util/colors";
 import { getUser } from "./service/auth";
 import { useRouter } from "vue-router";
+import { VApp } from "vuetify/components";
 
 const router = useRouter();
 try {
@@ -13,7 +15,7 @@ try {
 </script>
 
 <template>
-  <router-view />
+  <v-app> <router-view /></v-app>
   <snackbars-display />
 </template>
 

@@ -1,273 +1,219 @@
 <template>
-  <div class="nav-chat-container">
-    <main-navbar-vue></main-navbar-vue>
-    <div class="chat-container">
-      <div class="chat-list">
-        <div class="chat-list-title">Create room</div>
-        <div>
-          <div class="chat-new">
-            <img 
-              src="../assets/plus.png" 
-              class="new-icon" 
-              @click="showAddNewChat">
-              <new-chat-component v-if="newChatOpen" @clickedExit="showAddNewChat"></new-chat-component>
-              <new-user-to-chat-component v-if="newUserOpen" @clickedExit="showAddNewUserToChat"></new-user-to-chat-component>
-            </div>
-          <div
-            v-for="(chat) in chatRooms"
-            :key="chat.id"
-            class="chat-list-element"
-            :class="{'active': selectedChatRoom?.id === chat.id}"
-            @click="handleSelectChatRoom(chat)"
-          >
-            {{ chat.name }}
-          </div>
+  <main-navbar-vue></main-navbar-vue>
+  <v-navigation-drawer permanent>
+    <new-chat-component
+      v-if="newChatOpen"
+      @clickedExit="showAddNewChat"
+    ></new-chat-component>
+    <new-user-to-chat-component
+      v-if="newUserOpen"
+      @clickedExit="showAddNewUserToChat"
+    ></new-user-to-chat-component>
+    <v-btn
+      color="primary"
+      class="mt-4 mb-2 ml-3"
+      prepend-icon="mdi-message-plus"
+      @click="showAddNewChat"
+      >Create room</v-btn
+    >
+    <v-list color="transparent">
+      <v-list-item
+        @click="handleSelectChatRoom(chat)"
+        :class="{
+          'bg-blue-lighten-3':
+            selectedChatRoom?.chatroom_id === chat.chatroom_id,
+        }"
+        :key="chat.chatroom_id"
+        v-for="chat in chatRooms"
+        :title="chat.name"
+      ></v-list-item>
+    </v-list>
+  </v-navigation-drawer>
+  <v-main>
+    <div v-if="selectedChatRoom" class="chat-box-container">
+      <div class="d-flex justify-center chat-title">
+        <v-btn
+          color="primary"
+          variant="outlined"
+          class="ma-2"
+          prepend-icon="mdi-account-plus"
+          @click="showAddNewUserToChat"
+          >Add user</v-btn
+        >
+        <div class="chat-box-title ma-2">
+          Welcome to {{ selectedChatRoom.name }}
         </div>
       </div>
-      <div class="chat-box-container">
-        <div class="chat-box" v-if="selectedChatRoom">
-          <div @click="showAddNewUserToChat">+</div>
-          <div class="chat-box-title">Welcome to {{ selectedChatRoom.name }}</div>
-          <div
-            v-for="message in messages"
-            :key="message.message_id"
-            class="chat-box-wrapper"
-            :class="{'author': message.username === user.username || message.user_id === user.user_id}"
-          >
-            <div class="chat-box-author">{{ message.username }}</div>
-            <div class="chat-box-message">{{ message.message_text }}</div>
-          </div>
+      <div class="chat-box">
+        <div
+          v-for="message in messages"
+          :key="message.message_id"
+          class="chat-box-wrapper"
+          :class="{
+            author:
+              message.username === user.username ||
+              message.user_id === user.user_id,
+          }"
+        >
+          <div class="chat-box-author">{{ message.username }}</div>
+          <div class="chat-box-message">{{ message.message_text }}</div>
         </div>
-        <div v-else>
-          Najpierw wybierz pokój
-        </div>
-        <div class="chat-input">
-          <input
-            type="text"
-            v-model="chatMessage"
-            @keyup.enter="handleSubmit"
-          />
-          <div>
-            <button @click="handleSubmit">
-              Wyślij
-            </button>
-          </div>
+      </div>
+      <div class="chat-input">
+        <v-text-field
+          color="secondary"
+          v-model="chatMessage"
+          variant="outlined"
+          @keyup.enter="handleSubmit"
+        ></v-text-field>
+        <div>
+          <v-btn color="secondary" @click="handleSubmit">Send</v-btn>
         </div>
       </div>
     </div>
-</div>
+    <div v-else>Najpierw wybierz pokój</div>
+  </v-main>
 </template>
-<script>
-import {defineComponent, onMounted, ref, computed} from 'vue';
-import {useRouter} from 'vue-router';
-import {useUserStore} from '../store/userStore';
-import {useChatStore} from '../store/chatStore';
-import {getChatrooms, getMessages} from '../service/chat';
-import { v4 as uuidv4 } from 'uuid';
-import NewChatComponent from '../components/NewChatComponent.vue';
-import NewUserToChatComponent from '../components/NewUserToChatComponent.vue';
-import MainNavbarVue from '../components/MainNavbar.vue';
+<script setup>
+import { defineComponent, onMounted, ref, computed, watchEffect } from "vue";
+import {
+  VNavigationDrawer,
+  VMain,
+  VBtn,
+  VList,
+  VListItem,
+  VTextField,
+} from "vuetify/components";
+import { useRouter } from "vue-router";
+import { useUserStore } from "../store/userStore";
+import { useChatStore } from "../store/chatStore";
+import { getChatrooms, getMessages } from "../service/chat";
+import { v4 as uuidv4 } from "uuid";
+import NewChatComponent from "../components/NewChatComponent.vue";
+import NewUserToChatComponent from "../components/NewUserToChatComponent.vue";
+import MainNavbarVue from "../components/MainNavbar.vue";
 
-export default defineComponent({
-  components: { NewChatComponent, NewUserToChatComponent, MainNavbarVue },
-  setup() {
-    const api = `wss://chatter-io.fly.dev/api`;
-    const chatMessage = ref('')
-    const userStore = useUserStore()
-    const chatStore = useChatStore()
-    const user = computed(() => userStore.getUser)
-    const router = useRouter();
+const api = `wss://chatter-io.fly.dev/api`;
+const chatMessage = ref("");
+const userStore = useUserStore();
+const chatStore = useChatStore();
+const user = computed(() => userStore.getUser);
+const router = useRouter();
 
-    const chatRooms = computed(() => chatStore.getChatRooms)
-    const selectedChatRoom = computed(() => chatStore.getSelectedChatRoom)
-    const messages = computed(() => chatStore.getMessages)
-
-    const newChatOpen = ref(false);
-    const newUserOpen = ref(false);
-    const socket = ref(null);
-    onMounted(() => {
-      getChatrooms();
-      if(chatRooms.selectedChatRoom){
-        getMessages()
-      }
-
-    });
-
-    const handleSelectChatRoom = async (chat) => {
-      chatStore.setSelectedChatRoom(chat)
-      if(socket.value){
-        socket.value.close();
-        socket.value = null;
-      }
-      socket.value = new WebSocket(`${api}/messages/ws/${chat.chatroom_id}?token=${userStore.getToken}`);
-      socket.value.onmessage = (payload) => {
-        const message = JSON.parse(payload.data);
-        if(!message.status){
-          chatStore.messages.push({message_text:message.message,username:message.username});
-        }
-
-      }
-      getMessages(chat.chatroom_id)
-    }
-    const showAddNewChat = () => {
-      newChatOpen.value = !newChatOpen.value;
-      //todo 
-    }
-    const showAddNewUserToChat = () => {
-      newUserOpen.value = !newUserOpen.value;
-      //todo 
-    }
-    const handleSubmit = () => {
-      const message = {
-        message: chatMessage.value,
-        username: userStore.getUser.username
-      }
-      chatMessage.value = '';
-      socket.value.send(JSON.stringify(message))
-    }
-
-    return {
-      chatMessage,
-      chatRooms,
-      selectedChatRoom,
-      user,
-      messages,
-      newChatOpen,
-      newUserOpen,
-      handleSubmit,
-      handleSelectChatRoom,
-      showAddNewChat,
-      showAddNewUserToChat
-    }
-  },
+const chatRooms = computed(() => chatStore.getChatRooms);
+const selectedChatRoom = computed(() => chatStore.getSelectedChatRoom);
+watchEffect(() => {
+  console.log(selectedChatRoom?.value?.chatroom_id, chatRooms.value);
 });
+const messages = computed(() => chatStore.getMessages);
+
+const newChatOpen = ref(false);
+const newUserOpen = ref(false);
+const socket = ref(null);
+
+onMounted(() => {
+  getChatrooms();
+  if (chatRooms.selectedChatRoom) {
+    getMessages();
+  }
+});
+
+const handleSelectChatRoom = async (chat) => {
+  chatStore.setSelectedChatRoom(chat);
+  if (socket.value) {
+    socket.value.close();
+    socket.value = null;
+  }
+
+  socket.value = new WebSocket(
+    `${api}/messages/ws/${chat.chatroom_id}?token=${userStore.getToken}`
+  );
+  socket.value.onmessage = (payload) => {
+    const message = JSON.parse(payload.data);
+    if (!message.status) {
+      chatStore.messages.push({
+        message_text: message.message,
+        username: message.username,
+      });
+    }
+  };
+
+  getMessages(chat.chatroom_id);
+};
+const showAddNewChat = () => {
+  newChatOpen.value = !newChatOpen.value;
+  //todo
+};
+const showAddNewUserToChat = () => {
+  newUserOpen.value = !newUserOpen.value;
+  //todo
+};
+const handleSubmit = () => {
+  const message = {
+    message: chatMessage.value,
+    username: userStore.getUser.username,
+  };
+  chatMessage.value = "";
+  socket.value.send(JSON.stringify(message));
+};
 </script>
 
 <style lang="scss">
-.chat-container {
-  min-width:100vw;
-  min-height:100vh;
-  flex: 1;
+.chat-box-container {
   display: flex;
-  justify-content: space-between;
-  align-items: stretch;
-  gap: 20px;
+  flex-direction: column;
+  height: 100%;
+  padding: 10px;
+}
+.chat-title {
+  flex: 0 0 auto;
+}
 
-  & .chat-list {
+.chat-box {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 0;
+  gap: 5px;
+  overflow: auto;
+  &-title {
+    text-align: center;
+    font-size: 24px;
+  }
+  &-author {
+    font-size: 12px;
+  }
+  &-wrapper {
     display: flex;
     flex-direction: column;
-    justify-self: stretch;
-    background: #55AAFF;
-    color: #fff;
-    padding: 20px;
-    overflow:auto;
 
-    &-title {
-      font-size: 24px;
-    }
-    &-element {
-      font-size: 14px;
-      padding: 5px;
-      margin-top: 5px;
-      border: 1px solid black;
-      cursor: pointer;
-      transition: all ease .4s;
-
-      &:hover {
-        background: rgba(66, 68, 90, 1)
+    &.author {
+      align-self: flex-end;
+      & .chat-box-message {
+        background: #55aaff;
       }
-
-      &.active {
-        background: rgba(66, 68, 90, 1);
+      & .chat-box-author {
+        text-align: right;
       }
     }
   }
-
-  & .chat-box-container {
-    flex: 1;
-    display: flex;
-    justify-content: stretch;
-    align-items: stretch;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-
-    & .chat-box {
-      display: flex;
-      height: 500px;
-      flex-direction: column;
-      gap: 5px;
-      overflow:auto;
-      &-title {
-        text-align: center;
-        font-size: 24px;
-      }
-      &-author{
-        font-size:12px;
-      }
-      &-wrapper{
-        display:flex;
-        flex-direction:column;
-
-        &.author {
-          align-self: flex-end;
-          & .chat-box-message{
-            background: #55AAFF;
-          }
-          & .chat-box-author{
-            text-align:right;
-          }
-        }
-      }
-      &-message {
-        padding: 5px 10px;
-        background: #E4E6EB;
-        align-self: flex-start;
-        border-radius: 8px;
-
-
-      }
-    }
-
-    & .chat-input {
-      display: flex;
-      justify-content: stretch;
-      align-items: center;
-      gap: 20px;
-
-      & input {
-        align-self: stretch;
-        font-size: 14px;
-        flex: 1;
-        background: rgba(66, 68, 90, 1);
-        color: #fff;
-        border: none;
-        padding: 5px;
-      }
-
-      & button {
-        padding: 5px;
-        color: #fff;
-        font-size: 24px;
-        border: none;
-        flex: 1;
-        background: rgba(66, 68, 90, 1);
-      }
-    }
+  &-message {
+    padding: 5px 10px;
+    background: #e4e6eb;
+    align-self: flex-start;
+    border-radius: 8px;
   }
 }
-.chat-new{
-  display:flex;
-  justify-content:center;
 
-  & .new-icon{
-    background:white;
-    border-radius:100px;
-    width:1.5rem;
-  }
-  & .new-icon:hover{
-    background:yellow;
-    cursor: pointer;
+.chat-input {
+  display: flex;
+  justify-content: stretch;
+  align-items: center;
+  gap: 20px;
+  flex: 0 0 auto;
+  margin-top: 20px;
+  & input {
+    align-self: stretch;
+    flex: 1;
   }
 }
 </style>

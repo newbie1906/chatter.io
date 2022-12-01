@@ -9,7 +9,6 @@
     "preview": "vite preview --port 4173"
   },
   "dependencies": {
-    "@mdi/font": "5.9.55",
     "axios": "^1.1.2",
     "pinia": "^2.0.23",
     "qs": "^6.11.0",
@@ -22,6 +21,7 @@
     "webfontloader": "^1.0.0"
   },
   "devDependencies": {
+    "@mdi/font": "^7.0.96",
     "@rushstack/eslint-patch": "^1.1.4",
     "@vitejs/plugin-vue": "^3.0.3",
     "@vitejs/plugin-vue-jsx": "^2.0.1",

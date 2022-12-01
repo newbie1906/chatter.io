@@ -1,32 +1,30 @@
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
-export const useChatStore = defineStore('chat', {
+export const useChatStore = defineStore("chat", {
   state: () => {
     return {
-      chatRooms: [
-      ],
+      chatRooms: [],
       selectedChatRoom: null,
-      messages: [
-      ]
-    }
+      messages: [],
+    };
   },
   getters: {
-    getChatRooms: state => state.chatRooms,
-    getSelectedChatRoom: state => state.selectedChatRoom,
-    getMessages: state => state.messages
+    getChatRooms: (state) => state.chatRooms,
+    getSelectedChatRoom: (state) => state.selectedChatRoom,
+    getMessages: (state) => state.messages,
   },
   actions: {
     setChatRooms(rooms) {
-      this.chatRooms = rooms
+      this.chatRooms = rooms;
     },
     addMessage(message) {
-      this.messages = [...this.messages, message]
+      this.messages = [...this.messages, message];
     },
     setMessages(messages) {
-      this.messages = messages
+      this.messages = messages;
     },
     setSelectedChatRoom(chat) {
-      this.selectedChatRoom = chat
-    }
+      this.selectedChatRoom = chat;
+    },
   },
-})
+});

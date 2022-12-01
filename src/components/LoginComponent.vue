@@ -1,83 +1,90 @@
 <template>
-  <concentrated-layout title="Login">
-    <template #default>
-      <v-text-field v-model="username" label="Username"></v-text-field>
-      <v-text-field
-        v-model="password"
-        label="Password"
-        type="password"
-        @keyup.enter="loginHandler"
-      ></v-text-field>
-    </template>
-    <template #actions>
-      <div class="smallText mb-4"><a>Forgot password?</a></div>
-      <v-btn class="submit-button" @click="loginHandler" label="Log In!"
-        >Log In!</v-btn
-      >
-      <div class="bottom-text mt-4">
-        Don't have an account? <a href="/register">Click here</a>
-      </div>
-    </template>
-  </concentrated-layout>
+  <v-form
+    @submit.prevent="loginHandler"
+    ref="form"
+    validate-on="blur"
+    v-model="correct"
+  >
+    <concentrated-layout title="Login">
+      <template #default>
+        <v-text-field
+          v-model="username"
+          name="username"
+          color="primary"
+          label="Username"
+          class="mb-2"
+          :rules="[requireRule]"
+        ></v-text-field>
+        <v-text-field
+          color="primary"
+          v-model="password"
+          label="Password"
+          type="password"
+          name="password"
+          class="mb-2"
+          :rules="[requireRule]"
+        ></v-text-field>
+        <div class="smallText ml-2">
+          <link-to to="">Forgot password?</link-to>
+        </div>
+      </template>
+      <template #actions>
+        <v-btn color="primary" min-width="200px" type="submit" label="Log In"
+          >Log In</v-btn
+        >
+        <div class="text-subtitle-1 mt-5">
+          Don't have an account? <a href="/register">Click here</a>
+        </div>
+      </template>
+    </concentrated-layout></v-form
+  >
 </template>
 
-<script>
+<script setup>
 import { defineComponent, ref } from "@vue/runtime-core";
 import { login, getUser } from "../service/auth";
 import ConcentratedLayout from "./ConcentratedLayout.vue";
 import { useSnackbarStore } from "../store/snackbarStore";
+import LinkTo from "./LinkTo.vue";
 import { useRouter } from "vue-router";
-import { VTextField, VBtn } from "vuetify/components";
+import { VTextField, VBtn, VForm } from "vuetify/components";
+import { requireRule } from "../validation/rules";
 
-export default defineComponent({
-  components: { VTextField, VBtn, ConcentratedLayout },
-  setup() {
-    const snackbars = useSnackbarStore();
-    const router = useRouter();
-    const username = ref("");
-    const password = ref("");
+const snackbars = useSnackbarStore();
+const router = useRouter();
+const username = ref("");
+const password = ref("");
+const form = ref(null);
+const correct = ref(false);
 
-    const loginHandler = async () => {
-      const user = {
-        username: username.value,
-        password: password.value,
-      };
-      try {
-        const { data } = await login(user);
-        localStorage.setItem("token", `${data.access_token}`);
-        const userData = await getUser();
-        router.push("/");
-        snackbars.pushSnackbar({
-          title: `Welcome back ${userData.username}`,
-          color: "green",
-          message: "",
-        });
-      } catch (error) {
-        if (error.response.status === 422) {
-          snackbars.pushSnackbar({
-            title: "Error",
-            color: "red",
-            message: `There was some issue with logging you:\n ${error}`,
-          });
-        }
-      }
-    };
-    return {
-      username,
-      password,
-      loginHandler,
-    };
-  },
-});
+const loginHandler = async () => {
+  if (!correct.value) return;
+  const user = {
+    username: username.value,
+    password: password.value,
+  };
+  try {
+    const { data } = await login(user);
+    localStorage.setItem("token", `${data.access_token}`);
+    const userData = await getUser();
+    router.push("/");
+    snackbars.pushSnackbar({
+      title: `Welcome back ${userData.username}`,
+      color: "green",
+      message: "",
+    });
+  } catch (error) {
+    snackbars.pushSnackbar({
+      title: "Error",
+      color: "red",
+      message: `There was some issue with logging you:\n ${error}`,
+    });
+  }
+};
 </script>
 <style scoped>
-.submit-button {
-  color: black;
-}
-.smallText {
+.smallText a {
   font-size: 12px;
-}
-.bottom-text {
-  margin-top: 25px;
+  font-weight: 700;
 }
 </style>
