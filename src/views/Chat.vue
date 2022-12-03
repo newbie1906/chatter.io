@@ -33,6 +33,7 @@
     <div v-if="selectedChatRoom" class="chat-box-container">
       <div class="d-flex justify-center chat-title">
         <v-btn
+          v-if="selectedChatRoom.private"
           color="primary"
           variant="outlined"
           class="ma-2"
@@ -75,7 +76,7 @@
   </v-main>
 </template>
 <script setup>
-import { defineComponent, onMounted, ref, computed, watchEffect } from "vue";
+import { defineComponent, onMounted, ref, computed, watchEffect, watch, onUpdated } from "vue";
 import {
   VNavigationDrawer,
   VMain,
@@ -107,10 +108,27 @@ watchEffect(() => {
 });
 const messages = computed(() => chatStore.getMessages);
 
+  
 const newChatOpen = ref(false);
 const newUserOpen = ref(false);
 const socket = ref(null);
 const chatBox = ref(null);
+
+const scrollToEnd = () => {
+  setTimeout(()=>{
+    console.log("scrolling")
+    chatBox.value.scrollTop = chatBox.value.scrollHeight;
+  },200)
+
+}
+
+// watch(messages, () => {
+//   chatBox.value.scrollTop = chatBox.value.scrollHeight
+//   console.log("deep watch")
+// },
+// {
+//   deep:true
+// })
 
 onMounted(() => {
   getChatrooms();
@@ -129,6 +147,7 @@ const handleSelectChatRoom = async (chat) => {
   socket.value = new WebSocket(
     `${api}/messages/ws/${chat.chatroom_id}?token=${userStore.getToken}`
   );
+  scrollToEnd();
   socket.value.onmessage = (payload) => {
     const message = JSON.parse(payload.data);
     if (!message.status) {
@@ -136,6 +155,7 @@ const handleSelectChatRoom = async (chat) => {
         message_text: message.message,
         username: message.username,
       });
+      scrollToEnd();
     }
   };
   
@@ -159,8 +179,8 @@ const handleSubmit = () => {
   };
   chatMessage.value = "";
   socket.value.send(JSON.stringify(message));
-  chatBox.value.scrollTop = chatBox.value.scrollHeight;
 };
+
 </script>
 
 <style lang="scss">

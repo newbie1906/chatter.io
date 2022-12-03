@@ -49,13 +49,14 @@ import { VTextField,VBtn } from "vuetify/components";
     components:{VTextField,VBtn},
     name:"AddNewUser",
     emits: ['clickedExit'],
-    setup(){
+    setup(_, { emit }){
       const name = ref('');
       const chatStore = useChatStore();
 
       const addNewUser = () => {
-        const payload = {user:name.value,chatroom_id:chatStore.getSelectedChatRoom.chatroom_id}; 
+        const payload = {user:name.value,chatroom_id:chatStore.getSelectedChatRoom.chatroom_id};
         addUserToChatroom(payload)
+        emit('clickedExit')
       }
 
       return{
