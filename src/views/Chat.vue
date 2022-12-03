@@ -93,7 +93,7 @@ import { v4 as uuidv4 } from "uuid";
 import NewChatComponent from "../components/NewChatComponent.vue";
 import NewUserToChatComponent from "../components/NewUserToChatComponent.vue";
 import MainNavbarVue from "../components/MainNavbar.vue";
-
+// building test
 const api = `wss://chatter-io.fly.dev/api`;
 const chatMessage = ref("");
 const userStore = useUserStore();
