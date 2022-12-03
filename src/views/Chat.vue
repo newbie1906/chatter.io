@@ -76,7 +76,7 @@
   </v-main>
 </template>
 <script setup>
-import { defineComponent, onMounted, ref, computed, watchEffect, watch, onUpdated } from "vue";
+import { defineComponent, onMounted, ref, computed, watchEffect, watch, onUpdated, onUnmounted } from "vue";
 import {
   VNavigationDrawer,
   VMain,
@@ -93,19 +93,16 @@ import { v4 as uuidv4 } from "uuid";
 import NewChatComponent from "../components/NewChatComponent.vue";
 import NewUserToChatComponent from "../components/NewUserToChatComponent.vue";
 import MainNavbarVue from "../components/MainNavbar.vue";
-// building test
+
 const api = `wss://chatter-io.fly.dev/api`;
 const chatMessage = ref("");
 const userStore = useUserStore();
 const chatStore = useChatStore();
 const user = computed(() => userStore.getUser);
 const router = useRouter();
-
+const observer = ref(null);
 const chatRooms = computed(() => chatStore.getChatRooms);
 const selectedChatRoom = computed(() => chatStore.getSelectedChatRoom);
-watchEffect(() => {
-  console.log(selectedChatRoom?.value?.chatroom_id, chatRooms.value);
-});
 const messages = computed(() => chatStore.getMessages);
 
   
@@ -114,21 +111,9 @@ const newUserOpen = ref(false);
 const socket = ref(null);
 const chatBox = ref(null);
 
-const scrollToEnd = () => {
-  setTimeout(()=>{
-    console.log("scrolling")
-    chatBox.value.scrollTop = chatBox.value.scrollHeight;
-  },200)
-
+const scrollToEnd = (el) => {
+  chatBox.value.scrollTop = chatBox.value.scrollHeight;
 }
-
-// watch(messages, () => {
-//   chatBox.value.scrollTop = chatBox.value.scrollHeight
-//   console.log("deep watch")
-// },
-// {
-//   deep:true
-// })
 
 onMounted(() => {
   getChatrooms();
@@ -139,6 +124,7 @@ onMounted(() => {
 
 const handleSelectChatRoom = async (chat) => {
   chatStore.setSelectedChatRoom(chat);
+  observer.value?.disconnect();
   if (socket.value) {
     socket.value.close();
     socket.value = null;
@@ -147,7 +133,6 @@ const handleSelectChatRoom = async (chat) => {
   socket.value = new WebSocket(
     `${api}/messages/ws/${chat.chatroom_id}?token=${userStore.getToken}`
   );
-  scrollToEnd();
   socket.value.onmessage = (payload) => {
     const message = JSON.parse(payload.data);
     if (!message.status) {
@@ -155,11 +140,13 @@ const handleSelectChatRoom = async (chat) => {
         message_text: message.message,
         username: message.username,
       });
-      scrollToEnd();
     }
   };
-  
-  getMessages(chat.chatroom_id);
+  await getMessages(chat.chatroom_id);
+  const config = { attributes: true, childList: true, subtree: true };
+  observer.value = new MutationObserver(scrollToEnd);
+  observer.value.observe(chatBox.value,config)
+  scrollToEnd();
 };
 const showAddNewChat = () => {
   if(newChatOpen.value === true){
@@ -180,7 +167,9 @@ const handleSubmit = () => {
   chatMessage.value = "";
   socket.value.send(JSON.stringify(message));
 };
-
+onUnmounted(() => {
+  observer.value?.disconnect();
+})
 </script>
 
 <style lang="scss">
