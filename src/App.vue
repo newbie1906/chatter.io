@@ -25,6 +25,5 @@ try {
   padding: 0;
   box-sizing: border-box;
   min-height: 100vh;
-  display: flex;
 }
 </style>
